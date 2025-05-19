@@ -1,41 +1,73 @@
-<!-- Evercare Booking Form -->
 <!DOCTYPE html>
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>نموذج حجز Evercare</title>
+  <style>
+    body { font-family: sans-serif; direction: rtl; padding: 20px; max-width: 600px; margin: auto; }
+    label, input, select { display: block; width: 100%; margin-bottom: 15px; font-size: 16px; }
+    input, select { padding: 10px; }
+    button { background-color: green; color: white; padding: 12px; font-size: 16px; border: none; cursor: pointer; }
+  </style>
 </head>
 <body>
+  <h2>نموذج حجز خدمة Evercare</h2>
   <form id="bookingForm">
     <label>اسم العميل:</label>
     <input type="text" name="client_name" required>
-    <label>الخدمة:</label>
+
+    <label>الخدمة المطلوبة:</label>
     <input type="text" name="service" required>
+
     <label>رقم الجوال:</label>
-    <input type="tel" name="phone" required>
-    <label>الفريق:</label>
+    <input type="tel" name="phone" required pattern="[0-9]{10}" title="أدخل رقم مكون من 10 أرقام">
+
+    <label>الفريق المنفذ:</label>
     <input type="text" name="team" required>
-    <label>اسم الموظف:</label>
+
+    <label>اسم الموظف الذي حجز:</label>
     <input type="text" name="employee" required>
-    <button type="submit">إرسال</button>
+
+    <button type="submit">إرسال الحجز</button>
   </form>
+
+  <p id="status"></p>
+
   <script>
     document.getElementById('bookingForm').addEventListener('submit', async function (e) {
       e.preventDefault();
+
+      const form = e.target;
       const data = {
-        client_name: this.client_name.value,
-        service: this.service.value,
-        phone: this.phone.value,
-        team: this.team.value,
-        employee: this.employee.value
+        client_name: form.client_name.value,
+        service: form.service.value,
+        phone: form.phone.value,
+        team: form.team.value,
+        employee: form.employee.value
       };
-      const response = await fetch('https://hooks.zapier.com/hooks/catch/22982521/27gv4ce/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      alert(response.ok ? 'تم الحجز بنجاح' : 'فشل في الإرسال');
+
+      try {
+        const response = await fetch('https://hooks.zapier.com/hooks/catch/22982521/27gv4ce/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        form.reset();
+
+        if (response.ok) {
+          document.getElementById('status').textContent = '✅ تم إرسال الحجز بنجاح!';
+        } else {
+          document.getElementById('status').textContent = '❌ فشل في إرسال الحجز.';
+        }
+      } catch (error) {
+        document.getElementById('status').textContent = '❌ حصل خطأ أثناء الإرسال.';
+      }
     });
   </script>
 </body>
 </html>
+
